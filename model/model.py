@@ -1,3 +1,5 @@
+import copy
+
 import networkx as nx
 
 from database.DAO import DAO
@@ -60,5 +62,38 @@ class Model:
 
 
         return lista_succ
+
+
+    def calcola_percorso(self, source,soglia):
+        self._source = source
+        self._soglia =  soglia
+        self._bestPath = []
+        self._bestMaggiori = 0
+        self._ricorsionePeso( [source], [])
+        return self._bestMaggiori, self._bestPath
+
+    def _ricorsionePeso(self, parziale, miglioriParziale):
+        if len(miglioriParziale) > self._bestMaggiori:
+            self._bestMaggiori = len(miglioriParziale)
+            self._bestPath = copy.deepcopy(parziale)
+
+        ultimo = parziale[-1]
+        for succ in self._grafo.successors(ultimo):
+            if succ not in parziale:
+                peso = self._grafo[ultimo][succ]["weight"]
+                if peso>=self._soglia:
+                    parziale.append(succ)
+
+                    if self.getBilancio(succ)>self.getBilancio(self._source):
+                        miglioriParziale.append(succ)
+                        self._ricorsionePeso(parziale, miglioriParziale)
+                        miglioriParziale.pop()
+                        parziale.pop()
+
+                    else:
+                        self._ricorsionePeso(parziale, miglioriParziale)
+                        parziale.pop()
+
+
 
 

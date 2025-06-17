@@ -41,12 +41,36 @@ class Controller:
 
 
     def handlePercorso(self, e):
-        pass
+        try:
+            float(self._view._txtInSoglia.value)
+            if self._view._ddAlbum2.value:
+                self._view.txt_result.clean()
+                album = self._mapAlbum[self._view._ddAlbum2.value]
+                maggiori, path = self._model.calcola_percorso(album, float(self._view._txtInSoglia.value))
+                self._view.txt_result.controls.append(ft.Text(f"il percorso migliore è composto da {maggiori} vertici"
+                                                              f" con bilancio maggiore del nodo di partenza {album.Title}. "
+                                                              f" il percorso:"))
+
+                for v in path:
+                    self._view.txt_result.controls.append(ft.Text(f"{str(v)}"))
+
+                self._view.update_page()
+
+            else:
+                self._view.create_alert("Seleziona un album")
+        except: self._view.create_alert("inserire un valore numerico di soglia")
+
+
+
+
+
+
 
     def fillDD(self):
         album = sorted(self._model._nodes, key=lambda x : x.Title)
         for n in album:
             self._mapAlbum[n.Title] = n
             self._view._ddAlbum.options.append(ft.dropdown.Option(n.Title))
+            self._view._ddAlbum2.options.append(ft.dropdown.Option(n.Title))
 
         self._view.update_page()
